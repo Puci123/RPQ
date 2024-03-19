@@ -76,10 +76,7 @@ int main()
     std::vector<int32_t> order; //Cmax = 58
     uint8_t numberOfTasks = 24;
 
-    //for (int i = 0; i < numberOfTasks; i++) {
-    //    order.push_back(i);
-    //}
-
+    auto start = std::chrono::high_resolution_clock::now();
 
     if (loadFromFile("Data\\P2.txt", tasks))
     {
@@ -94,20 +91,23 @@ int main()
             return a.r < b.r;
         });
 
-        for (int i = 0; i < tasksSortByR.size()-1; i++) {
-            for (int j = i + 1; j < tasksSortByR.size(); j++) {
-                Task temp = tasksSortByR[i];
-                tasksSortByR[i] = tasksSortByR[j];
-                tasksSortByR[j] = temp;
+        for (int a = 0; a < 10; a++) {
+            for (int i = 0; i < tasksSortByR.size() - 1; i++) {
+                for (int j = i + 1; j < tasksSortByR.size(); j++) {
+                    Task temp = tasksSortByR[i];
+                    tasksSortByR[i] = tasksSortByR[j];
+                    tasksSortByR[j] = temp;
 
 
-                costValue = getCost(tasksSortByR);
-                if (costValue < bestResult) {
-                    bestResult = costValue;
+                    costValue = getCost(tasksSortByR);
+                    if (costValue < bestResult) {
+                        bestResult = costValue;
+                    }
+                    else {
+                        tasksSortByR[j] = tasksSortByR[i];
+                        tasksSortByR[i] = temp;
+                    }
                 }
-
-                tasksSortByR[i] = tasksSortByR[j];
-                tasksSortByR[j] = temp;
             }
         }
 
@@ -124,7 +124,11 @@ int main()
     else {
         std::cout << "Nie otworzono pliku" << std::endl;
     }
+    
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000000.f;
 
+    std::cout << "Czas calego programu: " << duration << "s" << std::endl;
 }
 
 
