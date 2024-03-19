@@ -73,7 +73,7 @@ int main()
     std::vector<int32_t> order = { 1,2,3,4,5,6,7 }; //Cmax = 58
 
 
-    if (loadFromFile("Data\\Test1.txt", tasks))
+    if (loadFromFile("Data\\P1.txt", tasks))
     {
 
         for (int32_t i = 0; i < tasks.size(); i++)
