@@ -5,6 +5,11 @@ VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RPQ", "RPQ\RPQ.vcxproj", "{1560BBB1-2C5C-4F32-A7D7-561C31FF98C7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementy rozwiązania", "Elementy rozwiązania", "{A8D2C8C1-0FD8-496A-A1E1-EB0386D49BF3}"
+	ProjectSection(SolutionItems) = preProject
+		P22.txt = P22.txt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

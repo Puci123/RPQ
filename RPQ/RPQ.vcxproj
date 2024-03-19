@@ -130,6 +130,7 @@
     <ClCompile Include="RPQ.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="..\P22.txt" />
     <Text Include="Data\P1.txt" />
     <Text Include="Data\Test1.txt" />
   </ItemGroup>
