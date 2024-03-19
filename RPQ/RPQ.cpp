@@ -2,6 +2,9 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <algorithm>
+
+
 
 
 struct  Task
@@ -14,8 +17,8 @@ struct  Task
 
 bool loadFromFile(const std::string& path, std::vector<Task>& tasks) 
 {
-    std::ifstream file; 
-    std::string line; 
+    std::ifstream file;
+    std::string line;
     int32_t id = 0;
    
 
@@ -32,7 +35,7 @@ bool loadFromFile(const std::string& path, std::vector<Task>& tasks)
         int32_t pos = 0;
         int8_t i = 0;
 
-         
+        
         while (pos < line.size())
         {
             pos = line.find(' ');
@@ -56,6 +59,7 @@ int32_t getCost(const std::vector<Task>& tasks, const std::vector<int32_t>& orde
     int32_t costT = 0;
     int32_t costU = 0;
 
+
     for (int32_t i = 0; i < order.size(); i++)
     {
         costT = std::max(costT, tasks[i].r ) + tasks[i].p;
@@ -69,21 +73,37 @@ int32_t getCost(const std::vector<Task>& tasks, const std::vector<int32_t>& orde
 int main()
 {
    
-    std::vector<Task> tasks;
-    std::vector<int32_t> order = { 1,2,3,4,5,6,7 }; //Cmax = 58
+    std::vector<Task> tasks, tasksSortByR, tasksSortByP, tasksSortByQ;
+    std::vector<int32_t> order; //Cmax = 58
+    uint8_t numberOfTasks = 24;
+
+    for (int i = 0; i < numberOfTasks; i++) {
+        order.push_back(i);
+    }
 
 
     if (loadFromFile("Data\\P1.txt", tasks))
     {
+        tasksSortByR = tasks;
+        tasksSortByP = tasks;
+        tasksSortByQ = tasks;
 
-        for (int32_t i = 0; i < tasks.size(); i++)
-        {
-            std::cout << tasks[i].id << " " << tasks[i].r << " " << tasks[i].p << " " << tasks[i].q << std::endl;
-        }
+        std::sort(tasksSortByR.begin(), tasksSortByR.end(), [](const Task& a, const Task& b) {
+            return a.r < b.r;
+        });
+        std::sort(tasksSortByP.begin(), tasksSortByP.end(), [](const Task& a, const Task& b) {
+            return a.p < b.p;
+        });
+        std::sort(tasksSortByQ.begin(), tasksSortByQ.end(), [](const Task& a, const Task& b) {
+            return a.q < b.q;
+        });
+
+
+        std::cout << "\nCost of tasksSortByR: " << getCost(tasksSortByR, order) << std::endl;
+        std::cout << "\nCost of tasksSortByP: " << getCost(tasksSortByP, order) << std::endl;
+        std::cout << "\nCost of tasksSortByQ: " << getCost(tasksSortByQ, order) << std::endl;
     }
 
-
-    std::cout << "\nCost: " << getCost(tasks, order) << std::endl;
 }
 
 
