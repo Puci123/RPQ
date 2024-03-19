@@ -76,10 +76,11 @@ int main()
     std::vector<Task> tasks, tasksSortByR, tasksSortByP, tasksSortByQ;
     std::vector<int32_t> order; //Cmax = 58
     uint8_t numberOfTasks = 24;
-
+    
     for (int i = 0; i < numberOfTasks; i++) {
         order.push_back(i);
     }
+
 
 
     if (loadFromFile("Data\\P1.txt", tasks))
