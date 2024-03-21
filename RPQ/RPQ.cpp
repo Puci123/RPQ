@@ -71,8 +71,35 @@ int32_t getCost(const std::vector<Task>& tasks)
 }
 
 
+int32_t OrderTask(std::vector<Task>& tasks, int32_t n = 10)
+{
+    std::sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b) {return a.r < b.r; });
+
+    
+    for (int i = 0; i < tasksSortByR.size() - 1; i++) {
+        for (int j = i + 1; j < tasksSortByR.size(); j++) {
+            Task temp = tasksSortByR[i];
+            tasksSortByR[i] = tasksSortByR[j];
+            tasksSortByR[j] = temp;
+
+
+            costValue = getCost(tasksSortByR);
+            if (costValue < bestResult) {
+                bestResult = costValue;
+            }
+
+            tasksSortByR[j] = tasksSortByR[i];
+            tasksSortByR[j] = temp;
+        }
+    }
+}
+
+
+
 int main()
 {
+
+    auto m_StartPoint = std::chrono::high_resolution_clock::now();
    
     std::vector<Task> tasks, tasksSortByR, tasksSortByP, tasksSortByQ;
     std::vector<int32_t> order; //Cmax = 58
@@ -108,7 +135,7 @@ int main()
                     bestResult = costValue;
                 }
 
-                tasksSortByR[i] = tasksSortByR[j];
+                tasksSortByR[j] = tasksSortByR[i];
                 tasksSortByR[j] = temp;
             }
         }
@@ -127,7 +154,13 @@ int main()
         std::cout << "Nie otworzono pliku" << std::endl;
     }
 
+   auto m_EndPoint = std::chrono::high_resolution_clock::now();
+   auto  m_Diuration = std::chrono::duration_cast<std::chrono::microseconds>(m_EndPoint - m_StartPoint).count() / 1000000.f;
+
+
+   std::cout << m_Diuration << " s" << std::endl;
 }
+
 
 
 
