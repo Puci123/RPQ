@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <algorithm>
+#include <chrono>
 
 
 
@@ -54,13 +55,13 @@ bool loadFromFile(const std::string& path, std::vector<Task>& tasks)
 }
 
 
-int32_t getCost(const std::vector<Task>& tasks, const std::vector<int32_t>& order)
+int32_t getCost(const std::vector<Task>& tasks)
 {
     int32_t costT = 0;
     int32_t costU = 0;
 
 
-    for (int32_t i = 0; i < order.size(); i++)
+    for (int32_t i = 0; i < tasks.size(); i++)
     {
         costT = std::max(costT, tasks[i].r ) + tasks[i].p;
         costU = std::max(costU, costT + tasks[i].q);
@@ -76,11 +77,10 @@ int main()
     std::vector<Task> tasks, tasksSortByR, tasksSortByP, tasksSortByQ;
     std::vector<int32_t> order; //Cmax = 58
     uint8_t numberOfTasks = 24;
-    
-    for (int i = 0; i < numberOfTasks; i++) {
-        order.push_back(i);
-    }
 
+    //for (int i = 0; i < numberOfTasks; i++) {
+    //    order.push_back(i);
+    //}
 
 
     if (loadFromFile("Data\\P1.txt", tasks))
@@ -89,20 +89,42 @@ int main()
         tasksSortByP = tasks;
         tasksSortByQ = tasks;
 
+        int32_t bestResult = 1000000;
+        int32_t costValue = 0;
+
         std::sort(tasksSortByR.begin(), tasksSortByR.end(), [](const Task& a, const Task& b) {
             return a.r < b.r;
         });
-        std::sort(tasksSortByP.begin(), tasksSortByP.end(), [](const Task& a, const Task& b) {
-            return a.p < b.p;
-        });
-        std::sort(tasksSortByQ.begin(), tasksSortByQ.end(), [](const Task& a, const Task& b) {
-            return a.q < b.q;
-        });
+
+        for (int i = 0; i < tasksSortByR.size()-1; i++) {
+            for (int j = i + 1; j < tasksSortByR.size(); j++) {
+                Task temp = tasksSortByR[i];
+                tasksSortByR[i] = tasksSortByR[j];
+                tasksSortByR[j] = temp;
 
 
-        std::cout << "\nCost of tasksSortByR: " << getCost(tasksSortByR, order) << std::endl;
-        std::cout << "\nCost of tasksSortByP: " << getCost(tasksSortByP, order) << std::endl;
-        std::cout << "\nCost of tasksSortByQ: " << getCost(tasksSortByQ, order) << std::endl;
+                costValue = getCost(tasksSortByR);
+                if (costValue < bestResult) {
+                    bestResult = costValue;
+                }
+
+                tasksSortByR[i] = tasksSortByR[j];
+                tasksSortByR[j] = temp;
+            }
+        }
+
+        std::cout << "Cost of tasksSortByR: " << bestResult << std::endl;
+
+        //std::sort(tasksSortByP.begin(), tasksSortByP.end(), [](const Task& a, const Task& b) {
+        //    return a.p < b.p;
+        //});
+        //std::sort(tasksSortByQ.begin(), tasksSortByQ.end(), [](const Task& a, const Task& b) {
+        //    return a.q < b.q;
+        //});
+
+    }
+    else {
+        std::cout << "Nie otworzono pliku" << std::endl;
     }
 
 }
