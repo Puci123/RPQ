@@ -4,6 +4,10 @@
 #include <string>
 #include <algorithm>
 #include <chrono>
+#include <limits.h>
+#include <sstream>
+#include <filesystem>
+#include <regex>
 
 
 
@@ -54,7 +58,6 @@ bool loadFromFile(const std::string& path, std::vector<Task>& tasks)
     return true;
 }
 
-
 int32_t getCost(const std::vector<Task>& tasks)
 {
     int32_t costT = 0;
@@ -71,86 +74,110 @@ int32_t getCost(const std::vector<Task>& tasks)
 }
 
 
-int32_t OrderTask(std::vector<Task>& tasks, int32_t n = 10)
+int32_t orderTask(std::vector<Task>& tasks, int32_t n = 10)
 {
+
+    int32_t bestResult = 1000000;
+    int32_t costValue = 0;
+    
     std::sort(tasks.begin(), tasks.end(), [](const Task& a, const Task& b) {return a.r < b.r; });
 
-    
-    for (int i = 0; i < tasksSortByR.size() - 1; i++) {
-        for (int j = i + 1; j < tasksSortByR.size(); j++) {
-            Task temp = tasksSortByR[i];
-            tasksSortByR[i] = tasksSortByR[j];
-            tasksSortByR[j] = temp;
+    for (int a = 0; a < 10; a++)
+    {
+        for (int i = 0; i < tasks.size() - 1; i++) {
+            for (int j = i + 1; j < tasks.size(); j++) 
+            {
+                Task temp = tasks[i];
+                tasks[i] = tasks[j];
+                tasks[j] = temp;
 
 
-            costValue = getCost(tasksSortByR);
-            if (costValue < bestResult) {
-                bestResult = costValue;
+                costValue = getCost(tasks);
+                if (costValue < bestResult) 
+                {
+                    bestResult = costValue;
+                }
+                else 
+                {
+                    tasks[j] = tasks[i];
+                    tasks[i] = temp;
+                }
             }
-
-            tasksSortByR[j] = tasksSortByR[i];
-            tasksSortByR[j] = temp;
         }
     }
+
+    return bestResult;
 }
 
+
+std::string printTasks(const std::vector<Task>& tasks)
+{
+    std::stringstream ss;
+
+    for (int32_t i = 0; i < tasks.size(); i++)
+    {
+        ss << tasks[i].id << " ";
+    }
+
+    return ss.str();
+}
+
+int32_t  test(const std::string& path, float& totalDiuration) 
+{
+    std::vector<Task> tasks;
+    int32_t cost = 0;
+    
+    std::regex regex("\\\\.*\\.txt$");
+    std::smatch match;
+
+    if (std::regex_search(path, match, regex))
+    {
+        std::string filename = match.str().substr(1);
+
+        if (loadFromFile(path, tasks))
+        {
+            auto m_StartPoint = std::chrono::high_resolution_clock::now();
+            cost = orderTask(tasks);
+            auto m_EndPoint = std::chrono::high_resolution_clock::now();
+            auto  m_Diuration = std::chrono::duration_cast<std::chrono::microseconds>(m_EndPoint - m_StartPoint).count() / 1000000.f;
+
+            std::cout << "\033[1;32m[" << filename << "]\033[0m" << " koszt:" << cost << " czas wykonia : " << m_Diuration << "s" << std::endl;
+            std::cout << "Uporzadkowanie zadan: " << printTasks(tasks) << std::endl << std::endl;
+
+            totalDiuration += m_Diuration;
+
+        }
+        else
+        {
+            std::cout << "\033[1;31m[" << path << "]\033[0m" << " nie mozna otworzyc pliku" << std::endl;
+        }
+    }
+    else
+    {
+        std::cout << "\033[1;31m[" << path << "]\033[0m" << " nieprawidlowa sciezka pliku " << std::endl;
+    }
+
+    return cost;
+}
 
 
 int main()
 {
 
-    auto m_StartPoint = std::chrono::high_resolution_clock::now();
-   
-    std::vector<Task> tasks, tasksSortByR, tasksSortByP, tasksSortByQ;
-    std::vector<int32_t> order; //Cmax = 58
-    uint8_t numberOfTasks = 24;
+    float totalDiuration = 0;
+    int32_t totalCost = 0;
+    std::string targetDir = "Data";
 
-    auto start = std::chrono::high_resolution_clock::now();
-
-    if (loadFromFile("Data\\P2.txt", tasks))
+    for (const auto& entry: std::filesystem::directory_iterator(targetDir))
     {
-        tasksSortByR = tasks;
-        tasksSortByP = tasks;
-        tasksSortByQ = tasks;
-
-        int32_t bestResult = 1000000;
-        int32_t costValue = 0;
-
-        std::sort(tasksSortByR.begin(), tasksSortByR.end(), [](const Task& a, const Task& b) {
-            return a.r < b.r;
-        });
-
-        for (int a = 0; a < 10; a++) {
-            for (int i = 0; i < tasksSortByR.size() - 1; i++) {
-                for (int j = i + 1; j < tasksSortByR.size(); j++) {
-                    Task temp = tasksSortByR[i];
-                    tasksSortByR[i] = tasksSortByR[j];
-                    tasksSortByR[j] = temp;
-
-
-                costValue = getCost(tasksSortByR);
-                if (costValue < bestResult) {
-                    bestResult = costValue;
-                }
-
-                tasksSortByR[i] = tasksSortByR[j];
-                tasksSortByR[j] = temp;
-            }
-        }
-
-        std::cout << "Cost of tasksSortByR: " << bestResult << std::endl;
-
-        //std::sort(tasksSortByP.begin(), tasksSortByP.end(), [](const Task& a, const Task& b) {
-        //    return a.p < b.p;
-        //});
-        //std::sort(tasksSortByQ.begin(), tasksSortByQ.end(), [](const Task& a, const Task& b) {
-        //    return a.q < b.q;
-        //});
-
+        totalCost += test(entry.path().string(), totalDiuration);
     }
-    else {
-        std::cout << "Nie otworzono pliku" << std::endl;
-    }
+
+
+    std::cout << "=========================================================" << std::endl;
+    std::cout << "Calkowity koszt: " << totalCost << std::endl;
+    std::cout << "Calkowity czas: " << totalDiuration << "s" << std::endl;
+
 
 }
 

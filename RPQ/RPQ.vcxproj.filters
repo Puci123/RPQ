@@ -21,9 +21,11 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Data\P1.txt" />
-    <Text Include="Data\Test1.txt" />
     <Text Include="..\P22.txt">
       <Filter>Pliki źródłowe</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\test.csv" />
   </ItemGroup>
 </Project>
